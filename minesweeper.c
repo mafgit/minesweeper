@@ -10,7 +10,7 @@ void showInstructions()
     printf("\n  - 'c' to click a box");
     printf("\n  - 'u' to unflag a box");
     printf("\n  - 'e' to end the game\n");
-    printf("\n  Note: For the first three commands, after pressing enter you will be asked to give coordinates.\nRows and columns must not be outside the range of [0, size - 1].\n'*' represents unvisited areas.");
+    printf("\n  Note: For the first three commands, after pressing enter you will be asked to give coordinates.\n  Rows and columns must not be outside the range of [0, size - 1].\n  '*' represents unvisited areas.");
 }
 
 void showGrid(char grid[10][10], int size, int mines, int difficulty) {
@@ -45,6 +45,10 @@ void showGrid(char grid[10][10], int size, int mines, int difficulty) {
 	printf("  ===============================\n");
 }
 
+int getNumOfMines(int difficulty, int size) {
+	// just a general formula that gives 7/25 mines for easy, 21/49 for medium and 50/100 for hard.
+	return (size * (size - (3 - difficulty))) / 2;
+}
 
 int main()
 {
@@ -68,19 +72,22 @@ int main()
     int win = 0, blast = 0, started = 0;
 	
 	// === difficulty level ===
-	printf("  Difficulty levels: \n1) Easy, 2) Medium, 3) Hard");
+	printf("  Difficulty levels: \n  1) Easy, 2) Medium, 3) Hard");
 	printf("\n  Enter number of difficulty level: ");
 	scanf("%d", &difficulty);
+	
+	if (difficulty < 1 || difficulty > 3) difficulty = 3; 
 	
 	if (difficulty == 1)
 		size = 5;
 	else if (difficulty == 2)
 		size = 7;
-	else // difficult
+	else {
+		difficulty = 3; // in case user entered other than 1,2 and 3 as we need this value later to decide output based on difficulty
 		size = 10;
+	}
 	
-	mines = (size * (size - (3 - difficulty))) / 2;
-	// just a general formula that gives 7/25 mines for easy, 21/49 for medium and 50/100 for hard.
+	mines = getNumOfMines(difficulty, size);
 	// x---x difficulty level x---x
 	
     // === setting grid ===
