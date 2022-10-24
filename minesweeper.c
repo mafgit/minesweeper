@@ -33,10 +33,12 @@ void showGrid(char grid[10][10], int size, int mines, int difficulty, int hideMi
     {
         printf("  %d  ", i);
         for (int j = 0; j < size; j++)
-            if (hideMines == 1 && (grid[i][j] == 'm' || grid[i][j] == 'g')) // if its a mine then print *, i.e. don't show it
+            if (hideMines == 1 && (grid[i][j] == 'm')) // if its an unflagged mine then print *, i.e. don't show it
                 printf("%c  ", '*');
+            else if (grid[i][j] == 'g') // if it is a flagged mine, the show f, not g
+            	printf("%c  ", 'f');
             else
-                printf("%c  ", grid[i][j]);
+                printf("%c  ", grid[i][j]); // if it is * then show *
         printf("\n\n");
     }
     
@@ -180,17 +182,21 @@ int main() {
                     	
                     	grid[thisRow][thisCol] = 48 + getSurroundingMines(grid, size, thisRow, thisCol); // 48 is the ascii for 0, and we need to convert 0 to a character as grid array is of characters
                 	}
-                } else if ('f') {
+                } else if (cmd == 'f') {
                 	if (grid[thisRow][thisCol] == 'm') {
 						grid[thisRow][thisCol] = 'g';
 						mines--;
-					}
-					else
+					} else if (grid[thisRow][thisCol] == '*') {
 						grid[thisRow][thisCol] = 'f';
-				} else {
-					// u
-					if (grid[thisRow][thisCol] == 'g' || grid[thisRow][thisCol] == 'f') {
+						mines--;
+					}
+						
+				} else if (cmd == 'u') {
+					if (grid[thisRow][thisCol] == 'g') {
 						grid[thisRow][thisCol] = 'm';	
+						mines++;
+					}	else if (grid[thisRow][thisCol] == 'f') {
+						grid[thisRow][thisCol] = '*';
 						mines++;
 					}
 				}
