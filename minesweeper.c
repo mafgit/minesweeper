@@ -140,7 +140,7 @@ int main() {
     	system("cls"); // clear the output in terminal
     	showInstructions();
     	
-    	showGrid(grid, size, mines, difficulty, 0);
+    	showGrid(grid, size, mines, difficulty, 1);
         printf("\n  Enter command: ");
         scanf(" %c", &cmd);
 
