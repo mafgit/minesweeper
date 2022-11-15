@@ -4,20 +4,21 @@
 
 void showInstructions() {
     printf("\n  Following commands are available:\n");
-    printf("\n  - 'f' to flag a box");
     printf("\n  - 'c' to click a box");
+    printf("\n  - 'f' to flag a box");
     printf("\n  - 'u' to unflag a box");
     printf("\n  - 'e' to end the game\n");
-    printf("\n  Note: For the first three commands, after pressing enter you will be asked to give coordinates.\n  Rows and columns must not be outside the range of [0, size - 1].\n  '*' represents unvisited areas.");
+    printf("\n  Note: After the first three commands, you are asked to give coordinates.\n  Rows and columns must not be outside the range of [0, size - 1].\n  '*' represents unvisited areas.");
 }
 
 void showGrid(char grid[10][10], int size, int mines, int difficulty, int hideMines) {
 	printf("\n\n  ===============================");
-	printf("\n\n  Difficulty level: ");
-	printf(difficulty == 1 ? "Easy" : difficulty == 2 ? "Medium" : "Hard");
 	
-    // print 'mines left' and grid
-    printf("\n  Mines left: %d", mines);
+	if (hideMines == 1) {
+		printf("\n\n  Difficulty level: ");
+		printf(difficulty == 1 ? "Easy" : difficulty == 2 ? "Medium" : "Hard");
+	    printf("\n  Mines left: %d", mines);
+	}
     
 	// printing column numbers
     printf("\n\n     "); // two lines gap and then some space for row numbers
@@ -90,8 +91,8 @@ int getSurroundingMines(char grid[10][10], int size, int thisRow, int thisCol) {
 	return surroundingMines;
 }
 
-int main() {
-	/*
+void game () {
+		/*
 		'*': unvisited
 		' ': empty
 		'f': flagged, but not a mine
@@ -122,7 +123,7 @@ int main() {
 	else if (difficulty == 2)
 		size = 7;
 	else {
-		difficulty = 3; // in case user entered other than 1,2 and 3 as we need this value later to decide output based on difficulty
+		difficulty = 3; // in case user entered other than 1, 2 and 3 as we need this value later to decide output based on difficulty
 		size = 10;
 	}
 	
@@ -216,5 +217,19 @@ int main() {
         printf("\n  You won!");
     else if (blast == 1)
         printf("\n  You lost!");
-    started = 0;
+        
+    showGrid(grid, size, mines, difficulty, 0);
+}
+
+int main() {
+	int more;
+	
+	do {
+		system("cls");
+		
+		game();
+		
+		printf("\nDo you want to play again? Enter 0 for no, 1 for yes: ");
+		scanf("%d", &more);
+	} while(more != 0);
 }
