@@ -1,5 +1,4 @@
 #include <stdio.h>
-// following are to reduce warnings in compiler
 #include <stdlib.h>
 #include <time.h>
 
