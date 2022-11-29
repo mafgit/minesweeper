@@ -2,120 +2,11 @@
 #include <stdlib.h>
 #include <time.h>
 
-void showInstructions() {
-    printf("\n A box in the grid may be one of the following:\n");
-    printf("\n  '*': an unvisited box\n");
-    printf("\n  ' ': a visited and empty box\n");
-    printf("\n  'f': a box that is flagged by the user\n");
-    printf("\n  'm': a box that has a mine, and the user hasn't flagged it yet (but the user sees '*' instead)\n");
-    printf("\n  'g': a box that has a mine, and is flagged by the user (but the user sees 'f' instead)\n");
-    printf("\n Following commands are available:\n");
-    printf("\n  'c' to click a box to visit it\n");
-    printf("\n  'f' to flag a box\n");
-    printf("\n  'u' to unflag a box\n");
-    printf("\n  'e' to end the game\n");
-    printf("\n  Note: After the first three commands, you are asked to give coordinates.");
-    printf(" Rows and columns must not be outside the range of [0, size - 1].\n\n");
-}
-
-void showGrid(int size1, int size2, char grid[size1][size2],int mines, int difficulty, int hideMines) {
-	printf("  ===============================");
-	
-	if (hideMines == 1) {
-		printf("\n\n  Difficulty level: ");
-		printf(difficulty == 1 ? "Easy" : difficulty == 2 ? "Medium" : "Hard");
-	    printf("\n  Mines left: %d", mines);
-	}
-    
-	// printing column numbers
-    printf("\n\n      "); // two lines gap and then some space for row numbers
-    for (int i = 0; i < size2; i++)
-    {
-        printf("%d ", i);
-    	if (i < 10) printf(" ");
-    }
-    printf("\n\n");
-
-    // printing row numbers and then the rows
-	for (int i = 0; i < size1; i++)
-    {
-    	if (i < 10) printf(" ");
-        printf("  %d  ", i);
-        for (int j = 0; j < size2; j++)
-        	if (hideMines) {
-	            if (grid[i][j] == 'm') // if its an unflagged mine then print *, i.e. don't show it
-	                printf("%c  ", '*');
-	            else if (grid[i][j] == 'g') // if it is a flagged mine, then show f, not g
-	            	printf("%c  ", 'f');
-	            else
-	                printf("%c  ", grid[i][j]); // if it is * then show *, ' ', or number then show 
-	        } else {
-	            if (grid[i][j] == 'm')
-	                printf("%c  ", 'm');
-	            else if (grid[i][j] == 'g')
-	            	printf("%c  ", 'g');
-	            else
-	                printf("%c  ", grid[i][j]);
-			}
-//			if ()
-	        printf("\n\n");
-	    }
-    
-	printf("  ===============================\n");
-}
-
-int getNumOfMines(int difficulty) {
-	return (difficulty == 1) ? 10 : (difficulty == 2) ? 40 : 99;
-}
-
-void initializeGrid(int rowSize, int colSize, char (*gridRowPtr)[colSize]) {
-	// gridRowPtr is declared as a pointer to an array of size colSize.
-	for (int i = 0; i < rowSize; i++) {
-		for (int j = 0; j < colSize; j++) {
-			*(*(gridRowPtr + i) + j) = '*'; // all stars initially
-		}
-	}
-}
-
-int getSurroundingMines(int size1, int size2, char grid[size1][size2], int thisRow, int thisCol) {
-	int bottom, top, left, right, topLeft, topRight, bottomLeft, bottomRight;
-	
-	if (thisRow < size1)
-		bottom = grid[thisRow - 1][thisCol] == 'm' || grid[thisRow - 1][thisCol] == 'g';
-	else bottom = 0;
-	
-	if (thisRow > 0)
-		top = grid[thisRow + 1][thisCol] == 'm' || grid[thisRow + 1][thisCol] == 'g';
-	else top = 0;
-	
-	if (thisCol > 0)
-		left = grid[thisRow][thisCol - 1] == 'm' || grid[thisRow][thisCol - 1] == 'g';
-	else left = 0;
-	
-	if (thisCol < size2)
-		right = grid[thisRow][thisCol + 1] == 'm' || grid[thisRow][thisCol + 1] == 'g';
-	else right = 0;
-	
-	if (thisCol > 0 && thisRow > 0)
-		topLeft = grid[thisRow - 1][thisCol - 1] == 'm' || grid[thisRow - 1][thisCol - 1] == 'g';
-	else topLeft = 0;
-	
-	if (thisCol < size2 && thisRow > 0)
-		topRight = grid[thisRow - 1][thisCol + 1] == 'm' || grid[thisRow - 1][thisCol + 1] == 'g';
-	else topRight = 0;
-	
-	if (thisCol > 0 && thisRow < size1)
-		bottomLeft = grid[thisRow + 1][thisCol - 1] == 'm' || grid[thisRow + 1][thisCol - 1] == 'g';
-	else bottomLeft = 0;
-	
-	if (thisCol < size2 && thisRow < size1)
-		bottomRight = grid[thisRow + 1][thisCol + 1] == 'm' || grid[thisRow + 1][thisCol + 1] == 'g';
-	else bottomRight = 0;
-	
-	int surroundingMines = bottom + top + left + right + topLeft + topRight + bottomLeft + bottomRight;
-	
-	return surroundingMines;
-}
+void showInstructions();
+void showGrid(int rowSize, int colSize, char[rowSize][colSize],int, int, int);
+int getNumOfMines(int);
+void initializeGrid(int, int colSize, char (*)[colSize]);
+int getSurroundingMines(int rowSize, int colSize, char grid[rowSize][colSize], int, int);
 
 void game (int hideMines, int clearScreen) {
 	/*
@@ -330,4 +221,119 @@ int main() {
 		printf("\n  Do you want to play again? Enter 1 for yes and 0 for no: ");
 		scanf("%d", &more);
 	} while(more != 0);
+}
+
+void showInstructions() {
+    printf("\n A box in the grid may be one of the following:\n");
+    printf("\n  '*': an unvisited box\n");
+    printf("\n  ' ': a visited and empty box\n");
+    printf("\n  'f': a box that is flagged by the user\n");
+    printf("\n  'm': a box that has a mine, and the user hasn't flagged it yet (but the user sees '*' instead)\n");
+    printf("\n  'g': a box that has a mine, and is flagged by the user (but the user sees 'f' instead)\n");
+    printf("\n Following commands are available:\n");
+    printf("\n  'c' to click a box to visit it\n");
+    printf("\n  'f' to flag a box\n");
+    printf("\n  'u' to unflag a box\n");
+    printf("\n  'e' to end the game\n");
+    printf("\n  Note: After the first three commands, you are asked to give coordinates.");
+    printf(" Rows and columns must not be outside the range of [0, size - 1].\n\n");
+}
+
+void showGrid(int size1, int size2, char grid[size1][size2],int mines, int difficulty, int hideMines) {
+	printf("  ===============================");
+	
+	if (hideMines == 1) {
+		printf("\n\n  Difficulty level: ");
+		printf(difficulty == 1 ? "Easy" : difficulty == 2 ? "Medium" : "Hard");
+	    printf("\n  Mines left: %d", mines);
+	}
+    
+	// printing column numbers
+    printf("\n\n      "); // two lines gap and then some space for row numbers
+    for (int i = 0; i < size2; i++)
+    {
+        printf("%d ", i);
+    	if (i < 10) printf(" ");
+    }
+    printf("\n\n");
+
+    // printing row numbers and then the rows
+	for (int i = 0; i < size1; i++)
+    {
+    	if (i < 10) printf(" ");
+        printf("  %d  ", i);
+        for (int j = 0; j < size2; j++)
+        	if (hideMines) {
+	            if (grid[i][j] == 'm') // if its an unflagged mine then print *, i.e. don't show it
+	                printf("%c  ", '*');
+	            else if (grid[i][j] == 'g') // if it is a flagged mine, then show f, not g
+	            	printf("%c  ", 'f');
+	            else
+	                printf("%c  ", grid[i][j]); // if it is * then show *, ' ', or number then show 
+	        } else {
+	            if (grid[i][j] == 'm')
+	                printf("%c  ", 'm');
+	            else if (grid[i][j] == 'g')
+	            	printf("%c  ", 'g');
+	            else
+	                printf("%c  ", grid[i][j]);
+			}
+//			if ()
+	        printf("\n\n");
+	    }
+    
+	printf("  ===============================\n");
+}
+
+int getNumOfMines(int difficulty) {
+	return (difficulty == 1) ? 10 : (difficulty == 2) ? 40 : 99;
+}
+
+void initializeGrid(int rowSize, int colSize, char (*gridRowPtr)[colSize]) {
+	// gridRowPtr is declared as a pointer to an array of size colSize.
+	for (int i = 0; i < rowSize; i++) {
+		for (int j = 0; j < colSize; j++) {
+			*(*(gridRowPtr + i) + j) = '*'; // all stars initially
+		}
+	}
+}
+
+int getSurroundingMines(int size1, int size2, char grid[size1][size2], int thisRow, int thisCol) {
+	int bottom, top, left, right, topLeft, topRight, bottomLeft, bottomRight;
+	
+	if (thisRow < size1)
+		bottom = grid[thisRow - 1][thisCol] == 'm' || grid[thisRow - 1][thisCol] == 'g';
+	else bottom = 0;
+	
+	if (thisRow > 0)
+		top = grid[thisRow + 1][thisCol] == 'm' || grid[thisRow + 1][thisCol] == 'g';
+	else top = 0;
+	
+	if (thisCol > 0)
+		left = grid[thisRow][thisCol - 1] == 'm' || grid[thisRow][thisCol - 1] == 'g';
+	else left = 0;
+	
+	if (thisCol < size2)
+		right = grid[thisRow][thisCol + 1] == 'm' || grid[thisRow][thisCol + 1] == 'g';
+	else right = 0;
+	
+	if (thisCol > 0 && thisRow > 0)
+		topLeft = grid[thisRow - 1][thisCol - 1] == 'm' || grid[thisRow - 1][thisCol - 1] == 'g';
+	else topLeft = 0;
+	
+	if (thisCol < size2 && thisRow > 0)
+		topRight = grid[thisRow - 1][thisCol + 1] == 'm' || grid[thisRow - 1][thisCol + 1] == 'g';
+	else topRight = 0;
+	
+	if (thisCol > 0 && thisRow < size1)
+		bottomLeft = grid[thisRow + 1][thisCol - 1] == 'm' || grid[thisRow + 1][thisCol - 1] == 'g';
+	else bottomLeft = 0;
+	
+	if (thisCol < size2 && thisRow < size1)
+		bottomRight = grid[thisRow + 1][thisCol + 1] == 'm' || grid[thisRow + 1][thisCol + 1] == 'g';
+	else bottomRight = 0;
+	
+	int surroundingMines = bottom + top + left + right + topLeft + topRight + bottomLeft + bottomRight;
+	
+	return surroundingMines;
 }
