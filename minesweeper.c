@@ -7,8 +7,8 @@ void showInstructions() {
     printf("\n  '*': an unvisited box\n");
     printf("\n  ' ': a visited and empty box\n");
     printf("\n  'f': a box that is flagged by the user\n");
-    printf("\n  'g': a box that has a mine, and is flagged by the user (but the user sees 'f' instead)\n");
     printf("\n  'm': a box that has a mine, and the user hasn't flagged it yet (but the user sees '*' instead)\n");
+    printf("\n  'g': a box that has a mine, and is flagged by the user (but the user sees 'f' instead)\n");
     printf("\n Following commands are available:\n");
     printf("\n  'c' to click a box to visit it\n");
     printf("\n  'f' to flag a box\n");
@@ -18,7 +18,7 @@ void showInstructions() {
     printf(" Rows and columns must not be outside the range of [0, size - 1].\n\n");
 }
 
-void showGrid(char grid[10][10], int size, int mines, int difficulty, int hideMines) {
+void showGrid(int size1, int size2, char grid[size1][size2],int mines, int difficulty, int hideMines) {
 	printf("  ===============================");
 	
 	if (hideMines == 1) {
@@ -28,40 +28,50 @@ void showGrid(char grid[10][10], int size, int mines, int difficulty, int hideMi
 	}
     
 	// printing column numbers
-    printf("\n\n     "); // two lines gap and then some space for row numbers
-    for (int i = 0; i < size; i++)
+    printf("\n\n      "); // two lines gap and then some space for row numbers
+    for (int i = 0; i < size2; i++)
     {
-        printf("%d  ", i);
+        printf("%d ", i);
+    	if (i < 10) printf(" ");
     }
     printf("\n\n");
 
     // printing row numbers and then the rows
-	for (int i = 0; i < size; i++)
+	for (int i = 0; i < size1; i++)
     {
+    	if (i < 10) printf(" ");
         printf("  %d  ", i);
-        for (int j = 0; j < size; j++)
-            if (hideMines == 1 && (grid[i][j] == 'm')) // if its an unflagged mine then print *, i.e. don't show it
-                printf("%c  ", '*');
-            else if (grid[i][j] == 'g') // if it is a flagged mine, the show f, not g
-            	printf("%c  ", 'f');
-            else
-                printf("%c  ", grid[i][j]); // if it is * then show *
-        printf("\n\n");
-    }
-    
+        for (int j = 0; j < size2; j++)
+        	if (hideMines) {
+	            if (grid[i][j] == 'm') // if its an unflagged mine then print *, i.e. don't show it
+	                printf("%c  ", '*');
+	            else if (grid[i][j] == 'g') // if it is a flagged mine, then show f, not g
+	            	printf("%c  ", 'f');
+	            else
+	                printf("%c  ", grid[i][j]); // if it is * then show *, ' ', or number then show 
+	        } else {
+	            if (grid[i][j] == 'm')
+	                printf("%c  ", 'm');
+	            else if (grid[i][j] == 'g')
+	            	printf("%c  ", 'g');
+	            else
+	                printf("%c  ", grid[i][j]);
+			}
+//			if ()
+	        printf("\n\n");
+	    }
     
 	printf("  ===============================\n");
 }
 
-int getNumOfMines(int difficulty, int size) {
-	// just a general formula that gives 7/25 mines for easy, 21/49 for medium and 50/100 for hard.
-	return (size * (size - (3 - difficulty))) / 2;
+int getNumOfMines(int difficulty) {
+	return (difficulty == 1) ? 10 : (difficulty == 2) ? 40 : 99;
 }
 
-int getSurroundingMines(char grid[10][10], int size, int thisRow, int thisCol) {
+int getSurroundingMines(int size1, int size2, char grid[size1][size2], int thisRow, int thisCol) {
 	int bottom, top, left, right, topLeft, topRight, bottomLeft, bottomRight;
 	
-	if (thisRow < size)
+	if (thisRow < size1)
 		bottom = grid[thisRow - 1][thisCol] == 'm' || grid[thisRow - 1][thisCol] == 'g';
 	else bottom = 0;
 	
@@ -73,7 +83,7 @@ int getSurroundingMines(char grid[10][10], int size, int thisRow, int thisCol) {
 		left = grid[thisRow][thisCol - 1] == 'm' || grid[thisRow][thisCol - 1] == 'g';
 	else left = 0;
 	
-	if (thisCol < size)
+	if (thisCol < size2)
 		right = grid[thisRow][thisCol + 1] == 'm' || grid[thisRow][thisCol + 1] == 'g';
 	else right = 0;
 	
@@ -81,15 +91,15 @@ int getSurroundingMines(char grid[10][10], int size, int thisRow, int thisCol) {
 		topLeft = grid[thisRow - 1][thisCol - 1] == 'm' || grid[thisRow - 1][thisCol - 1] == 'g';
 	else topLeft = 0;
 	
-	if (thisCol < size && thisRow > 0)
+	if (thisCol < size2 && thisRow > 0)
 		topRight = grid[thisRow - 1][thisCol + 1] == 'm' || grid[thisRow - 1][thisCol + 1] == 'g';
 	else topRight = 0;
 	
-	if (thisCol > 0 && thisRow < size)
+	if (thisCol > 0 && thisRow < size1)
 		bottomLeft = grid[thisRow + 1][thisCol - 1] == 'm' || grid[thisRow + 1][thisCol - 1] == 'g';
 	else bottomLeft = 0;
 	
-	if (thisCol < size && thisRow < size)
+	if (thisCol < size2 && thisRow < size1)
 		bottomRight = grid[thisRow + 1][thisCol + 1] == 'm' || grid[thisRow + 1][thisCol + 1] == 'g';
 	else bottomRight = 0;
 	
@@ -107,8 +117,7 @@ void game (int hideMines, int clearScreen) {
 		'm': unflagged mine (but user sees '*') 
 	*/
 	srand(time(0));
-    int size, difficulty, mines;
-    char grid[10][10];
+    int rowSize, colSize, difficulty, mines;
     
     // three things that user inputs
     char cmd; // command
@@ -123,24 +132,26 @@ void game (int hideMines, int clearScreen) {
 	printf("\n\n  Enter number of difficulty level: ");
 	scanf("%d", &difficulty);
 	
-	if (difficulty < 1 || difficulty > 3) difficulty = 3; 
-	
-	if (difficulty == 1)
-		size = 5;
-	else if (difficulty == 2)
-		size = 7;
+	if (difficulty == 1) // 9x9
+		rowSize = 9, colSize = 10; // +1 for delimiter
+	else if (difficulty == 2) // 16x16
+		rowSize = 16, colSize = 17;
 	else {
-		// in case user entered other than 1, 2 and 3 as we need this value later to decide output based on difficulty
+		// in case user entered other than 1, 2 and 3
 		difficulty = 3;
-		size = 10;
+		// 16x30
+		rowSize = 16;
+		colSize = 31;
 	}
 	
-	mines = getNumOfMines(difficulty, size);
+    char grid[rowSize][colSize];
+	
+	mines = getNumOfMines(difficulty);
 	// x---x difficulty level x---x
 	
     // === setting grid ===
-    for (int i = 0; i < size; i++)
-        for (int j = 0; j < size; j++)
+    for (int i = 0; i < rowSize; i++)
+        for (int j = 0; j < colSize; j++)
             grid[i][j] = '*'; // initially star only
 
     do
@@ -148,7 +159,7 @@ void game (int hideMines, int clearScreen) {
     	if (clearScreen) system("cls"); // clear the output in terminal
     	showInstructions();
     	
-    	showGrid(grid, size, mines, difficulty, hideMines);
+    	showGrid(rowSize, colSize, grid, mines, difficulty, hideMines);
         printf("\n  Enter command: ");
         scanf(" %c", &cmd);
 
@@ -160,19 +171,19 @@ void game (int hideMines, int clearScreen) {
         	printf("\n  Enter column number of the box: ");
         	scanf("%d", &thisCol);
         	
-            if (thisRow >= 0 && thisCol >= 0 && thisRow < size && thisCol < size) // row and col no. must be in range
+            if (thisRow >= 0 && thisCol >= 0 && thisRow < rowSize && thisCol < colSize) // row and col no. must be in range
             {
                 if (!started)
                 {
                     // set up mines
                     for (int i = 0; i < mines; i++) {
-                    	int randomX, randomY;
+                    	int randomRow, randomCol;
 						do {
 							// to prevent from the first box touched being the mine
-                    		randomX = rand() % size;
-							randomY = rand() % size;
-						} while (randomX == thisRow && randomY == thisCol);
-                    	grid[randomX][randomY] = 'm';
+							randomRow = rand() % rowSize;
+                    		randomCol = rand() % colSize;
+						} while (randomCol == thisCol && randomRow == thisRow);
+                    	grid[randomRow][randomCol] = 'm';
 					}
 					started = 1;
                 }
@@ -185,7 +196,7 @@ void game (int hideMines, int clearScreen) {
                         blast = 1;
                     } else {
                     	// check surrounding mines
-                    	int surroundingMines = getSurroundingMines(grid, size, thisRow, thisCol);
+                    	int surroundingMines = getSurroundingMines(rowSize, colSize, grid, thisRow, thisCol);
 						if (surroundingMines == 0)
 							grid[thisRow][thisCol] = ' ';
 						else
@@ -197,54 +208,54 @@ void game (int hideMines, int clearScreen) {
 						// traverse all four sides
 						if (firstClick) {
 							// right
-							for (int x = thisCol + 1; x <= size; x++) {
-								if (grid[thisRow][x] == 'm' || grid[thisRow][x] == 'g')
+							for (int c = thisCol + 1; c <= colSize; c++) {
+								if (grid[thisRow][c] == 'm' || grid[thisRow][c] == 'g')
 									break;
 								else {
-									surroundingMines = getSurroundingMines(grid, size, thisRow, x);
+									surroundingMines = getSurroundingMines(rowSize, colSize, grid, thisRow, c);
 									if (surroundingMines == 0)
-										grid[thisRow][x] = ' ';
+										grid[thisRow][c] = ' ';
 									else
-			                    		grid[thisRow][x] = 48 + surroundingMines;
+			                    		grid[thisRow][c] = 48 + surroundingMines;
 								}
 							}
 							
 							// left
-							for (int x = thisCol - 1; x >= 0; x--) {
-								if (grid[thisRow][x] == 'm' || grid[thisRow][x] == 'g')
+							for (int c = thisCol - 1; c >= 0; c--) {
+								if (grid[thisRow][c] == 'm' || grid[thisRow][c] == 'g')
 									break;
 								else {
-									surroundingMines = getSurroundingMines(grid, size, thisRow, x);
+									surroundingMines = getSurroundingMines(rowSize, colSize, grid, thisRow, c);
 									if (surroundingMines == 0)
-										grid[thisRow][x] = ' ';
+										grid[thisRow][c] = ' ';
 									else
-			                    		grid[thisRow][x] = 48 + surroundingMines;
+			                    		grid[thisRow][c] = 48 + surroundingMines;
 								}
 							}
 							
 							// top
-							for (int y = thisRow - 1; y >= 0; y--) {
-								if (grid[y][thisCol] == 'm' || grid[y][thisRow] == 'g')
+							for (int r = thisRow - 1; r >= 0; r--) {
+								if (grid[r][thisCol] == 'm' || grid[r][thisCol] == 'g')
 									break;
 								else {
-									surroundingMines = getSurroundingMines(grid, size, y, thisCol);
+									surroundingMines = getSurroundingMines(rowSize, colSize, grid, r, thisCol);
 									if (surroundingMines == 0)
-										grid[y][thisCol] = ' ';
+										grid[r][thisCol] = ' ';
 									else
-			                    		grid[y][thisCol] = 48 + surroundingMines;
+			                    		grid[r][thisCol] = 48 + surroundingMines;
 								}
 							}
 							
 							// bottom
-							for (int y = thisRow + 1; y <= size; y++) {
-								if (grid[y][thisCol] == 'm' || grid[y][thisCol] == 'g')
+							for (int r = thisRow + 1; r <= rowSize; r++) {
+								if (grid[r][thisCol] == 'm' || grid[r][thisCol] == 'g')
 									break;
 								else {
-									surroundingMines = getSurroundingMines(grid, size, y, thisCol);
+									surroundingMines = getSurroundingMines(rowSize, colSize, grid, r, thisCol);
 									if (surroundingMines == 0)
-										grid[y][thisCol] = ' ';
+										grid[r][thisCol] = ' ';
 									else
-			                    		grid[y][thisCol] = 48 + surroundingMines;
+			                    		grid[r][thisCol] = 48 + surroundingMines;
 								}
 							}
 							
@@ -274,20 +285,20 @@ void game (int hideMines, int clearScreen) {
                 printf("\n  Invalid row or column");
         }
         else if (cmd == 'e') {
-        	printf("\n  Game ended");
+        	printf("\n  Game ended\n\n");
         	break;
 		}
         else
-            printf("\n  Invalid command");
+            printf("\n  Invalid command\n\n");
 
     } while (!win && !blast); // enter conditions
 
     if (win == 1)
-        printf("\n  You won!");
+        printf("\n  YOU WON!\n\n");
     else if (blast == 1)
-        printf("\n  You lost!");
+        printf("\n  YOU LOST!\n\n");
         
-    showGrid(grid, size, mines, difficulty, 0);
+    showGrid(rowSize, colSize, grid, mines, difficulty, hideMines);
 }
 
 int main() {
@@ -300,7 +311,7 @@ int main() {
 //		for testing:
 //		game(0, 0);
 		
-		printf("\nDo you want to play again? Enter 1 for yes and 0 for no: ");
+		printf("\n  Do you want to play again? Enter 1 for yes and 0 for no: ");
 		scanf("%d", &more);
 	} while(more != 0);
 }
