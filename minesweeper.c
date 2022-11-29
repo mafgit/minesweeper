@@ -3,17 +3,23 @@
 #include <time.h>
 
 void showInstructions() {
-    printf("\n  Following commands are available:\n");
-    printf("\n  - 'c' to click a box");
-    printf("\n  - 'f' to flag a box");
-    printf("\n  - 'u' to unflag a box");
-    printf("\n  - 'e' to end the game\n");
+    printf("\n A box in the grid may be one of the following:\n");
+    printf("\n  '*': an unvisited box\n");
+    printf("\n  ' ': a visited and empty box\n");
+    printf("\n  'f': a box that is flagged by the user\n");
+    printf("\n  'g': a box that has a mine, and is flagged by the user (but the user sees 'f' instead)\n");
+    printf("\n  'm': a box that has a mine, and the user hasn't flagged it yet (but the user sees '*' instead)\n");
+    printf("\n Following commands are available:\n");
+    printf("\n  'c' to click a box to visit it\n");
+    printf("\n  'f' to flag a box\n");
+    printf("\n  'u' to unflag a box\n");
+    printf("\n  'e' to end the game\n");
     printf("\n  Note: After the first three commands, you are asked to give coordinates.");
-    printf(" Rows and columns must not be outside the range of [0, size - 1].\n  '*' represents unvisited areas.");
+    printf(" Rows and columns must not be outside the range of [0, size - 1].\n\n");
 }
 
 void showGrid(char grid[10][10], int size, int mines, int difficulty, int hideMines) {
-	printf("\n\n  ===============================");
+	printf("  ===============================");
 	
 	if (hideMines == 1) {
 		printf("\n\n  Difficulty level: ");
@@ -93,13 +99,12 @@ int getSurroundingMines(char grid[10][10], int size, int thisRow, int thisCol) {
 }
 
 void game (int hideMines, int clearScreen) {
-		/*
+	/*
 		'*': unvisited
-		' ': empty
+		' ': visited and empty
 		'f': flagged, but not a mine
-		'g': flagged, but it is a mine
-		'm': unflagged mine
-		for f, g and m, only f is visible on screen
+		'g': flagged, but it is a mine (but user sees only 'f')
+		'm': unflagged mine (but user sees '*') 
 	*/
 	srand(time(0));
     int size, difficulty, mines;
@@ -112,9 +117,10 @@ void game (int hideMines, int clearScreen) {
 	// used as boolean flags
     int win = 0, blast = 0, started = 0, firstClick = 1;
 	
+	showInstructions();
 	// === difficulty level ===
-	printf("  Difficulty levels: \n  1) Easy, 2) Medium, 3) Hard");
-	printf("\n  Enter number of difficulty level: ");
+	printf(" Difficulty levels: \n\n  1) Easy, 2) Medium, 3) Hard");
+	printf("\n\n  Enter number of difficulty level: ");
 	scanf("%d", &difficulty);
 	
 	if (difficulty < 1 || difficulty > 3) difficulty = 3; 
@@ -194,28 +200,52 @@ void game (int hideMines, int clearScreen) {
 							for (int x = thisCol + 1; x <= size; x++) {
 								if (grid[thisRow][x] == 'm' || grid[thisRow][x] == 'g')
 									break;
-								grid[thisRow][x] = ' ';
+								else {
+									surroundingMines = getSurroundingMines(grid, size, thisRow, x);
+									if (surroundingMines == 0)
+										grid[thisRow][x] = ' ';
+									else
+			                    		grid[thisRow][x] = 48 + surroundingMines;
+								}
 							}
 							
 							// left
 							for (int x = thisCol - 1; x >= 0; x--) {
 								if (grid[thisRow][x] == 'm' || grid[thisRow][x] == 'g')
 									break;
-								grid[thisRow][x] = ' ';
+								else {
+									surroundingMines = getSurroundingMines(grid, size, thisRow, x);
+									if (surroundingMines == 0)
+										grid[thisRow][x] = ' ';
+									else
+			                    		grid[thisRow][x] = 48 + surroundingMines;
+								}
 							}
 							
 							// top
 							for (int y = thisRow - 1; y >= 0; y--) {
-								if (grid[y][thisRow] == 'm' || grid[y][thisRow] == 'g')
+								if (grid[y][thisCol] == 'm' || grid[y][thisRow] == 'g')
 									break;
-								grid[y][thisRow] = ' ';
+								else {
+									surroundingMines = getSurroundingMines(grid, size, y, thisCol);
+									if (surroundingMines == 0)
+										grid[y][thisCol] = ' ';
+									else
+			                    		grid[y][thisCol] = 48 + surroundingMines;
+								}
 							}
 							
 							// bottom
 							for (int y = thisRow + 1; y <= size; y++) {
-								if (grid[y][thisRow] == 'm' || grid[y][thisRow] == 'g')
+								if (grid[y][thisCol] == 'm' || grid[y][thisCol] == 'g')
 									break;
-								grid[y][thisRow] = ' ';
+								else {
+									surroundingMines = getSurroundingMines(grid, size, y, thisCol);
+									if (surroundingMines == 0)
+										grid[y][thisCol] = ' ';
+									else
+			                    		grid[y][thisCol] = 48 + surroundingMines;
+								}
 							}
 							
 							// x---x traversing x---x
@@ -264,13 +294,13 @@ int main() {
 	int more;
 	
 	do {
-		system("cls");
+		system("cls"); // to clear the screen
 		
 		game(1, 1);
-		// for testing:
-		// game(0, 0);
+//		for testing:
+//		game(0, 0);
 		
-		printf("\nDo you want to play again? Enter 0 for no, 1 for yes: ");
+		printf("\nDo you want to play again? Enter 1 for yes and 0 for no: ");
 		scanf("%d", &more);
 	} while(more != 0);
 }
