@@ -8,7 +8,8 @@ void showInstructions() {
     printf("\n  - 'f' to flag a box");
     printf("\n  - 'u' to unflag a box");
     printf("\n  - 'e' to end the game\n");
-    printf("\n  Note: After the first three commands, you are asked to give coordinates.\n  Rows and columns must not be outside the range of [0, size - 1].\n  '*' represents unvisited areas.");
+    printf("\n  Note: After the first three commands, you are asked to give coordinates.");
+    printf(" Rows and columns must not be outside the range of [0, size - 1].\n  '*' represents unvisited areas.");
 }
 
 void showGrid(char grid[10][10], int size, int mines, int difficulty, int hideMines) {
@@ -91,7 +92,7 @@ int getSurroundingMines(char grid[10][10], int size, int thisRow, int thisCol) {
 	return surroundingMines;
 }
 
-void game () {
+void game (int hideMines, int clearScreen) {
 		/*
 		'*': unvisited
 		' ': empty
@@ -109,7 +110,7 @@ void game () {
     int thisRow, thisCol;
     
 	// used as boolean flags
-    int win = 0, blast = 0, started = 0;
+    int win = 0, blast = 0, started = 0, firstClick = 1;
 	
 	// === difficulty level ===
 	printf("  Difficulty levels: \n  1) Easy, 2) Medium, 3) Hard");
@@ -123,7 +124,8 @@ void game () {
 	else if (difficulty == 2)
 		size = 7;
 	else {
-		difficulty = 3; // in case user entered other than 1, 2 and 3 as we need this value later to decide output based on difficulty
+		// in case user entered other than 1, 2 and 3 as we need this value later to decide output based on difficulty
+		difficulty = 3;
 		size = 10;
 	}
 	
@@ -137,10 +139,10 @@ void game () {
 
     do
     {
-    	system("cls"); // clear the output in terminal
+    	if (clearScreen) system("cls"); // clear the output in terminal
     	showInstructions();
     	
-    	showGrid(grid, size, mines, difficulty, 1);
+    	showGrid(grid, size, mines, difficulty, hideMines);
         printf("\n  Enter command: ");
         scanf(" %c", &cmd);
 
@@ -154,7 +156,6 @@ void game () {
         	
             if (thisRow >= 0 && thisCol >= 0 && thisRow < size && thisCol < size) // row and col no. must be in range
             {
-                // think more about what to do on each cmd and what if game hasn't started yet
                 if (!started)
                 {
                     // set up mines
@@ -178,9 +179,48 @@ void game () {
                         blast = 1;
                     } else {
                     	// check surrounding mines
+                    	int surroundingMines = getSurroundingMines(grid, size, thisRow, thisCol);
+						if (surroundingMines == 0)
+							grid[thisRow][thisCol] = ' ';
+						else
+                    		grid[thisRow][thisCol] = 48 + surroundingMines;
                     	
-                    	
-                    	grid[thisRow][thisCol] = 48 + getSurroundingMines(grid, size, thisRow, thisCol); // 48 is the ascii for 0, and we need to convert 0 to a character as grid array is of characters
+						// 48 is the ascii for 0, and we need to convert 0 to a character as grid array is of characters
+						
+						// if 1st click:
+						// traverse all four sides
+						if (firstClick) {
+							// right
+							for (int x = thisCol + 1; x <= size; x++) {
+								if (grid[thisRow][x] == 'm' || grid[thisRow][x] == 'g')
+									break;
+								grid[thisRow][x] = ' ';
+							}
+							
+							// left
+							for (int x = thisCol - 1; x >= 0; x--) {
+								if (grid[thisRow][x] == 'm' || grid[thisRow][x] == 'g')
+									break;
+								grid[thisRow][x] = ' ';
+							}
+							
+							// top
+							for (int y = thisRow - 1; y >= 0; y--) {
+								if (grid[y][thisRow] == 'm' || grid[y][thisRow] == 'g')
+									break;
+								grid[y][thisRow] = ' ';
+							}
+							
+							// bottom
+							for (int y = thisRow + 1; y <= size; y++) {
+								if (grid[y][thisRow] == 'm' || grid[y][thisRow] == 'g')
+									break;
+								grid[y][thisRow] = ' ';
+							}
+							
+							// x---x traversing x---x
+							firstClick = 0;
+						}
                 	}
                 } else if (cmd == 'f') {
                 	if (grid[thisRow][thisCol] == 'm') {
@@ -190,7 +230,6 @@ void game () {
 						grid[thisRow][thisCol] = 'f';
 						mines--;
 					}
-						
 				} else if (cmd == 'u') {
 					if (grid[thisRow][thisCol] == 'g') {
 						grid[thisRow][thisCol] = 'm';	
@@ -227,7 +266,9 @@ int main() {
 	do {
 		system("cls");
 		
-		game();
+		game(1, 1);
+		// for testing:
+		// game(0, 0);
 		
 		printf("\nDo you want to play again? Enter 0 for no, 1 for yes: ");
 		scanf("%d", &more);
