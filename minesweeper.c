@@ -68,6 +68,15 @@ int getNumOfMines(int difficulty) {
 	return (difficulty == 1) ? 10 : (difficulty == 2) ? 40 : 99;
 }
 
+void initializeGrid(int rowSize, int colSize, char (*gridRowPtr)[colSize]) {
+	// gridRowPtr is declared as a pointer to an array of size colSize.
+	for (int i = 0; i < rowSize; i++) {
+		for (int j = 0; j < colSize; j++) {
+			*(*(gridRowPtr + i) + j) = '*'; // all stars initially
+		}
+	}
+}
+
 int getSurroundingMines(int size1, int size2, char grid[size1][size2], int thisRow, int thisCol) {
 	int bottom, top, left, right, topLeft, topRight, bottomLeft, bottomRight;
 	
@@ -110,7 +119,6 @@ int getSurroundingMines(int size1, int size2, char grid[size1][size2], int thisR
 
 void game (int hideMines, int clearScreen) {
 	/*
-		'*': unvisited
 		' ': visited and empty
 		'f': flagged, but not a mine
 		'g': flagged, but it is a mine (but user sees only 'f')
@@ -147,12 +155,12 @@ void game (int hideMines, int clearScreen) {
     char grid[rowSize][colSize];
 	
 	mines = getNumOfMines(difficulty);
-	// x---x difficulty level x---x
 	
-    // === setting grid ===
-    for (int i = 0; i < rowSize; i++)
-        for (int j = 0; j < colSize; j++)
-            grid[i][j] = '*'; // initially star only
+    initializeGrid(rowSize, colSize, grid);
+//	 could've done what's below but made this function to use pointers
+//    for (int i = 0; i < rowSize; i++)
+//        for (int j = 0; j < colSize; j++)
+//            grid[i][j] = '*'; // initially star only
 
     do
     {
@@ -163,7 +171,7 @@ void game (int hideMines, int clearScreen) {
         printf("\n  Enter command: ");
         scanf(" %c", &cmd);
 
-        if (cmd == 'f' || cmd == 'c' || cmd == 'u') // if cmd is other than these then err
+        if (cmd == 'f' || cmd == 'c' || cmd == 'u')
         {
         	printf("\n  Enter row number of the box: ");
         	scanf("%d", &thisRow);
@@ -215,8 +223,10 @@ void game (int hideMines, int clearScreen) {
 									surroundingMines = getSurroundingMines(rowSize, colSize, grid, thisRow, c);
 									if (surroundingMines == 0)
 										grid[thisRow][c] = ' ';
-									else
+									else {
 			                    		grid[thisRow][c] = 48 + surroundingMines;
+										break;	
+									}
 								}
 							}
 							
@@ -228,8 +238,10 @@ void game (int hideMines, int clearScreen) {
 									surroundingMines = getSurroundingMines(rowSize, colSize, grid, thisRow, c);
 									if (surroundingMines == 0)
 										grid[thisRow][c] = ' ';
-									else
+									else {
 			                    		grid[thisRow][c] = 48 + surroundingMines;
+										break;
+									}
 								}
 							}
 							
@@ -241,8 +253,10 @@ void game (int hideMines, int clearScreen) {
 									surroundingMines = getSurroundingMines(rowSize, colSize, grid, r, thisCol);
 									if (surroundingMines == 0)
 										grid[r][thisCol] = ' ';
-									else
+									else {
 			                    		grid[r][thisCol] = 48 + surroundingMines;
+										break;
+									}
 								}
 							}
 							
@@ -254,8 +268,10 @@ void game (int hideMines, int clearScreen) {
 									surroundingMines = getSurroundingMines(rowSize, colSize, grid, r, thisCol);
 									if (surroundingMines == 0)
 										grid[r][thisCol] = ' ';
-									else
+									else {
 			                    		grid[r][thisCol] = 48 + surroundingMines;
+			                    		break;
+			                    	}
 								}
 							}
 							
