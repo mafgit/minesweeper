@@ -204,7 +204,7 @@ void showInstructions() {
 }
 
 void showGrid (int size1, int size2, char grid[size1][size2],int mines, int difficulty, int hideMines) {
-	printf("  ===============================");
+	printf("  ==============================================");
 	
 	if (hideMines == 1) {
 		printf("\n\n  Difficulty level: ");
@@ -213,10 +213,10 @@ void showGrid (int size1, int size2, char grid[size1][size2],int mines, int diff
 	}
     
 	// printing column numbers
-    printf("\n\n      "); // two lines gap and then some space for row numbers
+    printf("\n\n        "); // two lines gap and then some space for row numbers
     for (int i = 0; i < size2; i++)
     {
-        printf("%d ", i);
+        printf("%d  ", i);
     	if (i < 10) printf(" ");
     }
     printf("\n\n");
@@ -229,24 +229,24 @@ void showGrid (int size1, int size2, char grid[size1][size2],int mines, int diff
         for (int j = 0; j < size2; j++)
         	if (hideMines) {
 	            if (grid[i][j] == 'm') // if its an unflagged mine then print *, i.e. don't show it
-	                printf("%c  ", '*');
+	                printf("| %c ", '*');
 	            else if (grid[i][j] == 'g') // if it is a flagged mine, then show f, not g
-	            	printf("%c  ", 'f');
+	            	printf("| %c ", 'f');
 	            else
-	                printf("%c  ", grid[i][j]); // if it is * then show *, ' ', or number then show 
+	                printf("| %c ", grid[i][j]); // if it is * then show *, ' ', or number then show 
 	        } else {
 	            if (grid[i][j] == 'm')
-	                printf("%c  ", 'm');
+	                printf("| %c ", 'm');
 	            else if (grid[i][j] == 'g')
-	            	printf("%c  ", 'g');
+	            	printf("| %c ", 'g');
 	            else
-	                printf("%c  ", grid[i][j]);
+	                printf("| %c ", grid[i][j]);
 			}
-//			if ()
-	        printf("\n\n");
+			
+	        printf("|\n\n");
 	    }
     
-	printf("  ===============================\n");
+	printf("  ==============================================\n");
 }
 
 int getNumOfMines (int difficulty) {
