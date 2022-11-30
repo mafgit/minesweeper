@@ -20,7 +20,7 @@ int main() {
 //		for testing:
 //		game(0, 0);
 		
-		printf("\n  Do you want to play again? Enter 1 for yes and 0 for no: ");
+		printf("  Do you want to play again? Enter 1 for yes and 0 for no: ");
 		scanf("%d", &more);
 	} while (more != 0);
 }
@@ -51,15 +51,15 @@ void game (int hideMines, int clearScreen) {
 	scanf("%d", &difficulty);
 	
 	if (difficulty == 1) // 9x9
-		rowSize = 9, colSize = 10; // +1 for delimiter
+		rowSize = 9, colSize = 9;
 	else if (difficulty == 2) // 16x16
-		rowSize = 16, colSize = 17;
+		rowSize = 16, colSize = 16;
 	else {
 		// in case user entered other than 1, 2 and 3
 		difficulty = 3;
 		// 16x30
 		rowSize = 16;
-		colSize = 31;
+		colSize = 30;
 	}
 	// x---x difficulty x---x
 	
@@ -77,9 +77,19 @@ void game (int hideMines, int clearScreen) {
     	showInstructions();
     	
     	showGrid(rowSize, colSize, grid, mines, difficulty, hideMines);
-        printf("\n  Enter command: ");
-        scanf(" %c", &cmd);
 
+        cmd = ' ';
+        while (1) {
+			// for cmd validation
+			printf("\n  Enter command: ");
+	        scanf(" %c", &cmd);
+        	
+        	if (cmd == 'e' || cmd == 'u' || cmd == 'f' || cmd == 'c')
+        		break;
+        	
+            printf("\n  Invalid command\n\n");
+		}
+        
         if (cmd == 'f' || cmd == 'c' || cmd == 'u')
         {
         	printf("\n  Enter row number of the box: ");
@@ -125,25 +135,25 @@ void game (int hideMines, int clearScreen) {
 							// right
 							for (int c = thisCol + 1; c <= colSize; c++) {
 								int mineFound = traverseOnFirstClick(rowSize, colSize, grid, thisRow, c);
-								if (mineFound==1) break;
+								if (mineFound == 1) break;
 							}
 							
 							// left
 							for (int c = thisCol - 1; c >= 0; c--) {
 								int mineFound = traverseOnFirstClick(rowSize, colSize, grid, thisRow, c);
-								if (mineFound==1) break;
+								if (mineFound == 1) break;
 							}
 							
 							// top
 							for (int r = thisRow - 1; r >= 0; r--) {
 								int mineFound = traverseOnFirstClick(rowSize, colSize, grid, r, thisCol);
-								if (mineFound==1) break;
+								if (mineFound == 1) break;
 							}
 							
 							// bottom
 							for (int r = thisRow + 1; r <= rowSize; r++) {
 								int mineFound = traverseOnFirstClick(rowSize, colSize, grid, r, thisCol);
-								if (mineFound==1) break;
+								if (mineFound == 1) break;
 							}
 
 							firstClick = 0;
@@ -183,8 +193,9 @@ void game (int hideMines, int clearScreen) {
         printf("\n  YOU WON!\n\n");
     else if (blast == 1)
         printf("\n  YOU LOST!\n\n");
-        
-    showGrid(rowSize, colSize, grid, mines, difficulty, hideMines);
+    
+    if (win || blast) // only show blast again when win or lose, not on entering 'e'
+    	showGrid(rowSize, colSize, grid, mines, difficulty, hideMines);
 }
 
 void showInstructions() {
@@ -199,11 +210,10 @@ void showInstructions() {
     printf("\n  'f' to flag a box\n");
     printf("\n  'u' to unflag a box\n");
     printf("\n  'e' to end the game\n");
-    printf("\n  Note: After the first three commands, you are asked to give coordinates.");
-    printf(" Rows and columns must not be outside the range of [0, size - 1].\n\n");
+    printf("\n  Note: After the first three commands, you are asked to give coordinates.\n\n");
 }
 
-void showGrid (int size1, int size2, char grid[size1][size2],int mines, int difficulty, int hideMines) {
+void showGrid (int rowSize, int colSize, char grid[rowSize][colSize],int mines, int difficulty, int hideMines) {
 	printf("  ==============================================");
 	
 	if (hideMines == 1) {
@@ -214,7 +224,7 @@ void showGrid (int size1, int size2, char grid[size1][size2],int mines, int diff
     
 	// printing column numbers
     printf("\n\n        "); // two lines gap and then some space for row numbers
-    for (int i = 0; i < size2; i++)
+    for (int i = 0; i < colSize; i++)
     {
         printf("%d  ", i);
     	if (i < 10) printf(" ");
@@ -222,11 +232,11 @@ void showGrid (int size1, int size2, char grid[size1][size2],int mines, int diff
     printf("\n\n");
 
     // printing row numbers and then the rows
-	for (int i = 0; i < size1; i++)
+	for (int i = 0; i < rowSize; i++)
     {
     	if (i < 10) printf(" ");
         printf("  %d  ", i);
-        for (int j = 0; j < size2; j++)
+        for (int j = 0; j < colSize; j++)
         	if (hideMines) {
 	            if (grid[i][j] == 'm') // if its an unflagged mine then print *, i.e. don't show it
 	                printf("| %c ", '*');
@@ -242,7 +252,6 @@ void showGrid (int size1, int size2, char grid[size1][size2],int mines, int diff
 	            else
 	                printf("| %c ", grid[i][j]);
 			}
-			
 	        printf("|\n\n");
 	    }
     
@@ -262,10 +271,10 @@ void initializeGrid (int rowSize, int colSize, char (*gridRowPtr)[colSize]) {
 	}
 }
 
-int getSurroundingMines (int size1, int size2, char grid[size1][size2], int thisRow, int thisCol) {
+int getSurroundingMines (int rowSize, int colSize, char grid[rowSize][colSize], int thisRow, int thisCol) {
 	int bottom, top, left, right, topLeft, topRight, bottomLeft, bottomRight;
 	
-	if (thisRow < size1)
+	if (thisRow < rowSize)
 		bottom = grid[thisRow - 1][thisCol] == 'm' || grid[thisRow - 1][thisCol] == 'g';
 	else bottom = 0;
 	
@@ -277,7 +286,7 @@ int getSurroundingMines (int size1, int size2, char grid[size1][size2], int this
 		left = grid[thisRow][thisCol - 1] == 'm' || grid[thisRow][thisCol - 1] == 'g';
 	else left = 0;
 	
-	if (thisCol < size2)
+	if (thisCol < colSize)
 		right = grid[thisRow][thisCol + 1] == 'm' || grid[thisRow][thisCol + 1] == 'g';
 	else right = 0;
 	
@@ -285,15 +294,15 @@ int getSurroundingMines (int size1, int size2, char grid[size1][size2], int this
 		topLeft = grid[thisRow - 1][thisCol - 1] == 'm' || grid[thisRow - 1][thisCol - 1] == 'g';
 	else topLeft = 0;
 	
-	if (thisCol < size2 && thisRow > 0)
+	if (thisCol < colSize && thisRow > 0)
 		topRight = grid[thisRow - 1][thisCol + 1] == 'm' || grid[thisRow - 1][thisCol + 1] == 'g';
 	else topRight = 0;
 	
-	if (thisCol > 0 && thisRow < size1)
+	if (thisCol > 0 && thisRow < rowSize)
 		bottomLeft = grid[thisRow + 1][thisCol - 1] == 'm' || grid[thisRow + 1][thisCol - 1] == 'g';
 	else bottomLeft = 0;
 	
-	if (thisCol < size2 && thisRow < size1)
+	if (thisCol < colSize && thisRow < rowSize)
 		bottomRight = grid[thisRow + 1][thisCol + 1] == 'm' || grid[thisRow + 1][thisCol + 1] == 'g';
 	else bottomRight = 0;
 	
