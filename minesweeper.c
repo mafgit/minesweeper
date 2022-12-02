@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <ctype.h>
 #include <stdlib.h>
 #include <time.h>
 
@@ -9,7 +10,7 @@ void initializeGrid (int, int colSize, char (*)[colSize]);
 int getSurroundingMines (int rowSize, int colSize, char grid[rowSize][colSize], int, int);
 void flagBox (int rowSize, int colSize, char grid[rowSize][colSize], int, int, int*);
 void unflagBox (int rowSize, int colSize, char grid[rowSize][colSize], int, int, int*);
-int traverseOnFirstClick (int, int colSize, char (*gridRowPtr)[colSize], int, int, int*);
+void expand (int rowSize, int colSize, char grid[rowSize][colSize], int, int, int*);
 void game (int);
 
 int main() {
@@ -136,40 +137,13 @@ void game (int devMode) { // devMode means don't hide mines & don't clear screen
                     	visited++;
                     	// check surrounding mines
                     	int surroundingMines = getSurroundingMines(rowSize, colSize, grid, thisRow, thisCol);
-						if (surroundingMines == 0)
-							grid[thisRow][thisCol] = ' ';
-						else
-                    		grid[thisRow][thisCol] = 48 + surroundingMines;
+                    	grid[thisRow][thisCol] = 48 + surroundingMines;
 						// 48 is the ascii for 0, and we need to convert 0 to a character as grid array is of characters
 						
-						// TODO: if this box has no surrounding mines, expand (i.e. unhide the surrounding boxes recursively):
-						// TODO: check visited if working correctly and winning correctly.
-						// TODO: delimiter issue
+						// TODO: delimiter, visited
 						
-//						// right
-//						for (int c = thisCol + 1; c <= colSize; c++) {
-//							int mineFound = traverseOnFirstClick(rowSize, colSize, grid, thisRow, c, &visited);
-//							if (mineFound == 1) break;
-//						}
-//						
-//						// left
-//						for (int c = thisCol - 1; c >= 0; c--) {
-//							int mineFound = traverseOnFirstClick(rowSize, colSize, grid, thisRow, c, &visited);
-//							if (mineFound == 1) break;
-//						}
-//						
-//						// top
-//						for (int r = thisRow - 1; r >= 0; r--) {
-//							int mineFound = traverseOnFirstClick(rowSize, colSize, grid, r, thisCol, &visited);
-//							if (mineFound == 1) break;
-//						}
-//						
-//						// bottom
-//						for (int r = thisRow + 1; r <= rowSize; r++) {
-//							int mineFound = traverseOnFirstClick(rowSize, colSize, grid, r, thisCol, &visited);
-//							if (mineFound == 1) break;
-//						}
-							
+						if (surroundingMines == 0)
+							expand(rowSize, colSize, grid, thisRow, thisCol, &visited);
 						if (devMode) printf("\n  Visited: %d\n\n", visited);
 	
 						if (visited == visitedToWin) {
@@ -249,10 +223,16 @@ void showGrid (int rowSize, int colSize, char grid[rowSize][colSize],int mines, 
 	                printf("| %c ", '*');
 	            else if (grid[i][j] == 'g') // if it is a flagged mine, then show f, not g
 	            	printf("| %c ", 'f');
-	            else
+	            else if (grid[i][j] == '0') {
+	            	printf("| %c ", ' ');
+				} else
 	                printf("| %c ", grid[i][j]); // if it is * then show *, ' ', or number then show 
-	        } else
-	        	printf("| %c ", grid[i][j]);
+	        } else {
+	        	if (grid[i][j] == '0')
+	            	printf("| %c ", ' ');
+	        	else
+					printf("| %c ", grid[i][j]);
+			}
 
 	        printf("|\n\n");
 	    }
@@ -334,22 +314,84 @@ void unflagBox (int rowSize, int colSize, char grid[rowSize][colSize], int thisR
 	}
 }
 
-int traverseOnFirstClick (int rowSize, int colSize, char (*gridRowPtr)[colSize], int r, int c, int *visited) {
-	// if mine found or surrounding mines found, then there should be a break in for loop of game function
-	// returning 1 represents mine found
+void expand (int rowSize, int colSize, char grid[rowSize][colSize], int thisRow, int thisCol, int* visited) {
 	int surroundingMines;
-	if (gridRowPtr[r][c] == 'm' || gridRowPtr[r][c] == 'g')
-		return 1;
-	else {
-		(*visited)++;
-		surroundingMines = getSurroundingMines(rowSize, colSize, gridRowPtr, r, c);
-		if (surroundingMines == 0) {
-			gridRowPtr[r][c] = ' ';
-			return 0;
+	
+	// bottom
+	if (!isdigit(grid[thisRow + 1][thisCol])) // if it has not already been checked for surrounding mines
+		// otherwise it will be a huge load on computer
+		if (thisRow < rowSize - 1) {
+			surroundingMines = getSurroundingMines(rowSize, colSize, grid, thisRow + 1, thisCol);
+			grid[thisRow + 1][thisCol] = 48 + surroundingMines;
+			(*visited)++;
+			if (surroundingMines == 0)
+				expand(rowSize, colSize, grid, thisRow + 1, thisCol, visited);
 		}
-		else {
-    		gridRowPtr[r][c] = 48 + surroundingMines;
-			return 1;	
+	
+	// top
+	if (!isdigit(grid[thisRow - 1][thisCol]))
+		if (thisRow > 0) {
+			surroundingMines = getSurroundingMines(rowSize, colSize, grid, thisRow - 1, thisCol);
+			grid[thisRow - 1][thisCol] = 48 + surroundingMines;
+			(*visited)++;
+			if (surroundingMines == 0)
+				expand(rowSize, colSize, grid, thisRow - 1, thisCol, visited);
 		}
-	}
+
+	// right
+	if (!isdigit(grid[thisRow][thisCol + 1]))
+		if (thisCol < colSize - 1) {
+			surroundingMines = getSurroundingMines(rowSize, colSize, grid, thisRow, thisCol + 1);
+			grid[thisRow][thisCol + 1] = 48 + surroundingMines;
+			(*visited)++;
+			if (surroundingMines == 0)
+				expand(rowSize, colSize, grid, thisRow, thisCol + 1, visited);
+		}
+		
+	// left
+	if (!isdigit(grid[thisRow][thisCol - 1]))
+		if (thisCol > 0) {
+			surroundingMines = getSurroundingMines(rowSize, colSize, grid, thisRow, thisCol - 1);
+			grid[thisRow][thisCol - 1] = 48 + surroundingMines;
+			(*visited)++;
+			if (surroundingMines == 0)
+				expand(rowSize, colSize, grid, thisRow, thisCol - 1, visited);
+		}
+
+	if (!isdigit(grid[thisRow + 1][thisCol + 1]))
+		if (thisRow < rowSize - 1 && thisCol < colSize - 1) {
+			surroundingMines = getSurroundingMines(rowSize, colSize, grid, thisRow + 1, thisCol + 1);
+			grid[thisRow + 1][thisCol + 1] = 48 + surroundingMines;
+			(*visited)++;
+			if (surroundingMines == 0)
+				expand(rowSize, colSize, grid, thisRow + 1, thisCol + 1, visited);
+		}
+	
+	if (!isdigit(grid[thisRow + 1][thisCol - 1]))
+		if (thisRow < rowSize - 1 && thisCol > 0) {
+			surroundingMines = getSurroundingMines(rowSize, colSize, grid, thisRow + 1, thisCol - 1);
+			grid[thisRow + 1][thisCol - 1] = 48 + surroundingMines;
+			(*visited)++;
+			if (surroundingMines == 0)
+				expand(rowSize, colSize, grid, thisRow + 1, thisCol - 1, visited);
+		}
+	
+	if (!isdigit(grid[thisRow - 1][thisCol + 1]))
+		if (thisRow > 0 && thisCol < colSize - 1) {
+			surroundingMines = getSurroundingMines(rowSize, colSize, grid, thisRow - 1, thisCol + 1);
+			grid[thisRow - 1][thisCol + 1] = 48 + surroundingMines;
+			(*visited)++;
+			if (surroundingMines == 0)
+				expand(rowSize, colSize, grid, thisRow - 1, thisCol + 1, visited);
+		}
+	
+	if (!isdigit(grid[thisRow - 1][thisCol - 1]))
+		if (thisRow > 0 && thisCol > 0) {
+			surroundingMines = getSurroundingMines(rowSize, colSize, grid, thisRow - 1, thisCol - 1);
+			grid[thisRow - 1][thisCol - 1] = 48 + surroundingMines;
+			(*visited)++;
+			if (surroundingMines == 0)
+				expand(rowSize, colSize, grid, thisRow - 1, thisCol - 1, visited);
+		}
 }
+		
