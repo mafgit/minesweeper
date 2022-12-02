@@ -4,14 +4,14 @@
 #include <time.h>
 
 void showInstructions ();
-void showGrid (int rowSize, int colSize, char[rowSize][colSize],int, int, int);
+void showGrid (int rowSize, int colSize, char[rowSize][colSize + 1],int, int, int);
 int getNumOfMines (int);
-void setMines (int rowSize, int colSize, char grid[rowSize][colSize], int, int, int);
-void initializeGrid (int, int colSize, char (*)[colSize]);
-int getSurroundingMines (int rowSize, int colSize, char grid[rowSize][colSize], int, int);
-void flagBox (int rowSize, int colSize, char grid[rowSize][colSize], int, int, int*);
-void unflagBox (int rowSize, int colSize, char grid[rowSize][colSize], int, int, int*);
-void expand (int rowSize, int colSize, char grid[rowSize][colSize], int, int, int*);
+void setMines (int rowSize, int colSize, char grid[rowSize][colSize + 1], int, int, int);
+void initializeGrid (int, int colSize, char (*)[colSize + 1]);
+int getSurroundingMines (int rowSize, int colSize, char grid[rowSize][colSize + 1], int, int);
+void flagBox (int rowSize, int colSize, char grid[rowSize][colSize + 1], int, int, int*);
+void unflagBox (int rowSize, int colSize, char grid[rowSize][colSize + 1], int, int, int*);
+void expand (int rowSize, int colSize, char grid[rowSize][colSize + 1], int, int, int*);
 void game (int);
 
 int main() {
@@ -68,7 +68,7 @@ void game (int devMode) {
 		mines = 2;
 	}
 	
-    char grid[rowSize][colSize];
+    char grid[rowSize][colSize + 1]; // +1 for \0
 	
 	int visited = 0;
 	int visitedToWin = (rowSize * colSize) - mines; // total boxes - mines
@@ -175,7 +175,7 @@ void showInstructions() {
     printf("\n  Note: After the first three commands, you are asked to give coordinates.\n\n");
 }
 
-void showGrid (int rowSize, int colSize, char grid[rowSize][colSize],int mines, int difficulty, int devMode) {
+void showGrid (int rowSize, int colSize, char grid[rowSize][colSize + 1],int mines, int difficulty, int devMode) {
 	printf("  ==============================================");
 	
 	if (!devMode) {
@@ -228,7 +228,7 @@ int getNumOfMines (int difficulty) {
 	return (difficulty == 1) ? 10 : (difficulty == 2) ? 40 : 99;
 }
 
-void setMines (int rowSize, int colSize, char grid[rowSize][colSize], int thisRow, int thisCol, int mines) {
+void setMines (int rowSize, int colSize, char grid[rowSize][colSize + 1], int thisRow, int thisCol, int mines) {
 	for (int i = 0; i < mines; i++) {
 		int randomRow, randomCol;
 		do {
@@ -241,7 +241,7 @@ void setMines (int rowSize, int colSize, char grid[rowSize][colSize], int thisRo
 	}
 }
 
-void initializeGrid (int rowSize, int colSize, char (*gridRowPtr)[colSize]) {
+void initializeGrid (int rowSize, int colSize, char (*gridRowPtr)[colSize + 1]) {
 	// gridRowPtr is declared as a pointer to an array of size colSize.
 	for (int i = 0; i < rowSize; i++) {
 		for (int j = 0; j < colSize; j++) {
@@ -250,7 +250,7 @@ void initializeGrid (int rowSize, int colSize, char (*gridRowPtr)[colSize]) {
 	}
 }
 
-int getSurroundingMines (int rowSize, int colSize, char grid[rowSize][colSize], int thisRow, int thisCol) {
+int getSurroundingMines (int rowSize, int colSize, char grid[rowSize][colSize + 1], int thisRow, int thisCol) {
 	int bottom, top, left, right, topLeft, topRight, bottomLeft, bottomRight;
 
 	if (thisRow < rowSize - 1)
@@ -290,7 +290,7 @@ int getSurroundingMines (int rowSize, int colSize, char grid[rowSize][colSize], 
 	return surroundingMines;
 }
 
-void flagBox (int rowSize, int colSize, char grid[rowSize][colSize], int thisRow, int thisCol, int *mines) {
+void flagBox (int rowSize, int colSize, char grid[rowSize][colSize + 1], int thisRow, int thisCol, int *mines) {
 	// arrays are passed by reference
 	if (grid[thisRow][thisCol] == 'm') {
 		grid[thisRow][thisCol] = 'g';
@@ -301,7 +301,7 @@ void flagBox (int rowSize, int colSize, char grid[rowSize][colSize], int thisRow
 	}
 }
 
-void unflagBox (int rowSize, int colSize, char grid[rowSize][colSize], int thisRow, int thisCol, int *mines) {
+void unflagBox (int rowSize, int colSize, char grid[rowSize][colSize + 1], int thisRow, int thisCol, int *mines) {
 	if (grid[thisRow][thisCol] == 'g') {
 		grid[thisRow][thisCol] = 'm';	
 		(*mines)++;
@@ -311,7 +311,7 @@ void unflagBox (int rowSize, int colSize, char grid[rowSize][colSize], int thisR
 	}
 }
 
-void expand (int rowSize, int colSize, char grid[rowSize][colSize], int thisRow, int thisCol, int* visited) {
+void expand (int rowSize, int colSize, char grid[rowSize][colSize + 1], int thisRow, int thisCol, int* visited) {
 	int surroundingMines;
 	
 	// bottom
