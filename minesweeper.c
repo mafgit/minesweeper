@@ -28,7 +28,7 @@ int main() {
 void game (int hideMines, int clearScreen) {
 	/*
 		'*': unvisited
-		' ': visited and empty
+		' ': visited and has no surrounding mines
 		'f': flagged, but not a mine
 		'g': flagged, but it is a mine (but user sees only 'f')
 		'm': unflagged mine (but user sees '*') 
@@ -110,7 +110,7 @@ void game (int hideMines, int clearScreen) {
 							// to prevent from the first box touched being the mine
 							randomRow = rand() % rowSize;
                     		randomCol = rand() % colSize;
-						} while (randomCol == thisCol && randomRow == thisRow);
+						} while ((randomCol == thisCol && randomRow == thisRow) || (grid[thisRow][thisCol] == 'm'));
                     	grid[randomRow][randomCol] = 'm';
 					}
 					started = 1;
@@ -205,13 +205,14 @@ void game (int hideMines, int clearScreen) {
         printf("\n  YOU LOST!\n\n");
     
     if (win || blast) // only show blast again when win or lose, not on entering 'e'
-    	showGrid(rowSize, colSize, grid, mines, difficulty, hideMines);
+    	showGrid(rowSize, colSize, grid, mines, difficulty, 0);
 }
 
 void showInstructions() {
     printf("\n A box in the grid may be one of the following:\n");
     printf("\n  '*': an unvisited box\n");
-    printf("\n  ' ': a visited and empty box\n");
+    printf("\n  ' ': a visited box that has no surrounding mines\n");
+    printf("\n  '5': a visited box that has 5 surrounding mines\n");
     printf("\n  'f': a box that is flagged by the user\n");
     printf("\n  'm': a box that has a mine, and the user hasn't flagged it yet (but the user sees '*' instead)\n");
     printf("\n  'g': a box that has a mine, and is flagged by the user (but the user sees 'f' instead)\n");
@@ -284,7 +285,7 @@ void initializeGrid (int rowSize, int colSize, char (*gridRowPtr)[colSize]) {
 int getSurroundingMines (int rowSize, int colSize, char grid[rowSize][colSize], int thisRow, int thisCol) {
 	int bottom, top, left, right, topLeft, topRight, bottomLeft, bottomRight;
 	
-	if (thisRow < rowSize)
+	if (thisRow < rowSize - 1)
 		bottom = grid[thisRow - 1][thisCol] == 'm' || grid[thisRow - 1][thisCol] == 'g';
 	else bottom = 0;
 	
@@ -296,7 +297,7 @@ int getSurroundingMines (int rowSize, int colSize, char grid[rowSize][colSize], 
 		left = grid[thisRow][thisCol - 1] == 'm' || grid[thisRow][thisCol - 1] == 'g';
 	else left = 0;
 	
-	if (thisCol < colSize)
+	if (thisCol < colSize - 1)
 		right = grid[thisRow][thisCol + 1] == 'm' || grid[thisRow][thisCol + 1] == 'g';
 	else right = 0;
 	
@@ -304,15 +305,15 @@ int getSurroundingMines (int rowSize, int colSize, char grid[rowSize][colSize], 
 		topLeft = grid[thisRow - 1][thisCol - 1] == 'm' || grid[thisRow - 1][thisCol - 1] == 'g';
 	else topLeft = 0;
 	
-	if (thisCol < colSize && thisRow > 0)
+	if (thisCol < colSize - 1 && thisRow > 0)
 		topRight = grid[thisRow - 1][thisCol + 1] == 'm' || grid[thisRow - 1][thisCol + 1] == 'g';
 	else topRight = 0;
 	
-	if (thisCol > 0 && thisRow < rowSize)
+	if (thisCol > 0 && thisRow < rowSize - 1)
 		bottomLeft = grid[thisRow + 1][thisCol - 1] == 'm' || grid[thisRow + 1][thisCol - 1] == 'g';
 	else bottomLeft = 0;
 	
-	if (thisCol < colSize && thisRow < rowSize)
+	if (thisCol < colSize - 1 && thisRow < rowSize - 1)
 		bottomRight = grid[thisRow + 1][thisCol + 1] == 'm' || grid[thisRow + 1][thisCol + 1] == 'g';
 	else bottomRight = 0;
 	
