@@ -64,10 +64,6 @@ void game (int clearScreen, int hideMines) {
 	int visitedToWin = (rowSize * colSize) - mines; // total boxes - mines
 	
     initializeGrid(rowSize, colSize, grid);
-//	 could've done what's below but made this function to use pointers
-//    for (int i = 0; i < rowSize; i++)
-//        for (int j = 0; j < colSize; j++)
-//            grid[i][j] = '*'; // initially star only
 
     do {
     	if (clearScreen)
@@ -89,11 +85,17 @@ void game (int clearScreen, int hideMines) {
 		}
         
         if (cmd == 'f' || cmd == 'c' || cmd == 'u') {
-        	printf("\n Enter row number of the box: ");
+        	printf("\n Enter row number of the box (Enter -1 to change command): ");
         	scanf("%d", &thisRow);
         	
-        	printf("\n Enter column number of the box: ");
+        	if (thisRow == -1)
+        		continue;
+        	
+        	printf("\n Enter column number of the box (Enter -1 to change command): ");
         	scanf("%d", &thisCol);
+        	
+			if (thisCol == -1)
+        		continue;
         	
             if (thisRow >= 0 && thisCol >= 0 && thisRow < rowSize && thisCol < colSize) {
 				// row and col no. must be in range
