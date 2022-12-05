@@ -20,7 +20,7 @@ int main() {
 	do {
 		system("cls"); // to clear the screen
 		
-//		game(0, 0); // for testing
+// 		game(0, 0); // for testing
 		game(1, 1); // normal mode
 		
 		printf("\n Do you want to play again? Enter 1 for yes and 0 for no: ");
@@ -302,19 +302,20 @@ void expand (int rowSize, int colSize, char grid[rowSize][colSize + 1], int this
 	int surroundingMines;
 	
 	// bottom
-	if (!isdigit(grid[thisRow + 1][thisCol])) // if it has not already been checked for surrounding mines
-		// otherwise it will be a huge load on computer
-		if (thisRow < rowSize - 1) {
-			surroundingMines = getSurroundingMines(rowSize, colSize, grid, thisRow + 1, thisCol);
-			grid[thisRow + 1][thisCol] = 48 + surroundingMines;
-			(*visited)++;
-			if (surroundingMines == 0)
-				expand(rowSize, colSize, grid, thisRow + 1, thisCol, visited);
-		}
+	if (thisRow < rowSize - 1)
+        if (!isdigit(grid[thisRow + 1][thisCol])) {
+            // if it has not already been checked for surrounding mines
+    	    // otherwise it will be a huge load on computer
+    		surroundingMines = getSurroundingMines(rowSize, colSize, grid, thisRow + 1, thisCol);
+    		grid[thisRow + 1][thisCol] = 48 + surroundingMines;
+    		(*visited)++;
+    		if (surroundingMines == 0)
+    			expand(rowSize, colSize, grid, thisRow + 1, thisCol, visited);
+        }
 	
 	// top
-	if (!isdigit(grid[thisRow - 1][thisCol]))
-		if (thisRow > 0) {
+	if (thisRow > 0) 
+	    if (!isdigit(grid[thisRow - 1][thisCol])){
 			surroundingMines = getSurroundingMines(rowSize, colSize, grid, thisRow - 1, thisCol);
 			grid[thisRow - 1][thisCol] = 48 + surroundingMines;
 			(*visited)++;
@@ -323,8 +324,8 @@ void expand (int rowSize, int colSize, char grid[rowSize][colSize + 1], int this
 		}
 
 	// right
-	if (!isdigit(grid[thisRow][thisCol + 1]))
-		if (thisCol < colSize - 1) {
+	if (thisCol < colSize - 1) 
+	    if (!isdigit(grid[thisRow][thisCol + 1])){
 			surroundingMines = getSurroundingMines(rowSize, colSize, grid, thisRow, thisCol + 1);
 			grid[thisRow][thisCol + 1] = 48 + surroundingMines;
 			(*visited)++;
@@ -333,8 +334,8 @@ void expand (int rowSize, int colSize, char grid[rowSize][colSize + 1], int this
 		}
 		
 	// left
-	if (!isdigit(grid[thisRow][thisCol - 1]))
-		if (thisCol > 0) {
+	if (thisCol > 0) 
+	    if (!isdigit(grid[thisRow][thisCol - 1])){
 			surroundingMines = getSurroundingMines(rowSize, colSize, grid, thisRow, thisCol - 1);
 			grid[thisRow][thisCol - 1] = 48 + surroundingMines;
 			(*visited)++;
@@ -342,8 +343,8 @@ void expand (int rowSize, int colSize, char grid[rowSize][colSize + 1], int this
 				expand(rowSize, colSize, grid, thisRow, thisCol - 1, visited);
 		}
 
-	if (!isdigit(grid[thisRow + 1][thisCol + 1]))
-		if (thisRow < rowSize - 1 && thisCol < colSize - 1) {
+	if (thisRow < rowSize - 1 && thisCol < colSize - 1)
+	    if (!isdigit(grid[thisRow + 1][thisCol + 1])){
 			surroundingMines = getSurroundingMines(rowSize, colSize, grid, thisRow + 1, thisCol + 1);
 			grid[thisRow + 1][thisCol + 1] = 48 + surroundingMines;
 			(*visited)++;
@@ -351,8 +352,8 @@ void expand (int rowSize, int colSize, char grid[rowSize][colSize + 1], int this
 				expand(rowSize, colSize, grid, thisRow + 1, thisCol + 1, visited);
 		}
 	
-	if (!isdigit(grid[thisRow + 1][thisCol - 1]))
-		if (thisRow < rowSize - 1 && thisCol > 0) {
+	if (thisRow < rowSize - 1 && thisCol > 0) 
+	    if (!isdigit(grid[thisRow + 1][thisCol - 1])){
 			surroundingMines = getSurroundingMines(rowSize, colSize, grid, thisRow + 1, thisCol - 1);
 			grid[thisRow + 1][thisCol - 1] = 48 + surroundingMines;
 			(*visited)++;
@@ -360,8 +361,8 @@ void expand (int rowSize, int colSize, char grid[rowSize][colSize + 1], int this
 				expand(rowSize, colSize, grid, thisRow + 1, thisCol - 1, visited);
 		}
 	
-	if (!isdigit(grid[thisRow - 1][thisCol + 1]))
-		if (thisRow > 0 && thisCol < colSize - 1) {
+	if (thisRow > 0 && thisCol < colSize - 1) 
+	    if (!isdigit(grid[thisRow - 1][thisCol + 1])){
 			surroundingMines = getSurroundingMines(rowSize, colSize, grid, thisRow - 1, thisCol + 1);
 			grid[thisRow - 1][thisCol + 1] = 48 + surroundingMines;
 			(*visited)++;
@@ -369,8 +370,8 @@ void expand (int rowSize, int colSize, char grid[rowSize][colSize + 1], int this
 				expand(rowSize, colSize, grid, thisRow - 1, thisCol + 1, visited);
 		}
 	
-	if (!isdigit(grid[thisRow - 1][thisCol - 1]))
-		if (thisRow > 0 && thisCol > 0) {
+	if (thisRow > 0 && thisCol > 0)
+	    if (!isdigit(grid[thisRow - 1][thisCol - 1])) {
 			surroundingMines = getSurroundingMines(rowSize, colSize, grid, thisRow - 1, thisCol - 1);
 			grid[thisRow - 1][thisCol - 1] = 48 + surroundingMines;
 			(*visited)++;
