@@ -229,7 +229,7 @@ void setMines (int rowSize, int colSize, char grid[rowSize][colSize + 1], int th
 }
 
 void initializeGrid (int rowSize, int colSize, char (*gridRowPtr)[colSize + 1]) {
-	// gridRowPtr is declared as a pointer to an array of size colSize.
+	// gridRowPtr is declared as a pointer to an array of size colSize + 1.
 	for (int i = 0; i < rowSize; i++) {
 		for (int j = 0; j < colSize; j++) {
 			*(*(gridRowPtr + i) + j) = '*'; // all stars initially
